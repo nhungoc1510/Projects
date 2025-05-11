@@ -1,0 +1,72 @@
+SELECT * FROM Card_data
+
+SELECT DISTINCT CardSubType
+FROM Card_data
+WHERE CardType = 'Credit'
+
+SELECT DISTINCT CardSubType
+FROM Card_data
+WHERE CardType = 'Debit'
+
+--DROP TABLE #card_product_holding  
+
+SELECT DISTINCT CustomerId
+FROM Card_data
+
+SELECT
+    CustomerId,
+    MAX(CASE WHEN CardType = 'Credit' AND CardSubType = 'Cash_Back' AND CardStatus = 'OK' THEN 1 ELSE 0 END) AS CC_Cash_Back,
+    MAX(CASE WHEN CardType = 'Credit' AND CardSubType = 'Family' AND CardStatus = 'OK' THEN 1 ELSE 0 END) AS CC_Family,
+    MAX(CASE WHEN CardType = 'Credit' AND CardSubType = 'Happy Life' AND CardStatus = 'OK' THEN 1 ELSE 0 END) AS CC_Happy_Life,
+    MAX(CASE WHEN CardType = 'Credit' AND CardSubType = 'Online_Plus' AND CardStatus = 'OK' THEN 1 ELSE 0 END) AS CC_Online_Plus,
+    MAX(CASE WHEN CardType = 'Credit' AND CardSubType = 'Premiere' AND CardStatus = 'OK' THEN 1 ELSE 0 END) AS CC_Premiere,
+    MAX(CASE WHEN CardType = 'Credit' AND CardSubType = 'Travel_Elite' AND CardStatus = 'OK' THEN 1 ELSE 0 END) AS CC_Travel_Elite,
+    MAX(CASE WHEN CardType = 'Debit' AND CardSubType = '2in1' AND CardStatus = 'OK' THEN 1 ELSE 0 END) AS DB_2in1,
+    MAX(CASE WHEN CardType = 'Debit' AND CardSubType = 'Classic' AND CardStatus = 'OK' THEN 1 ELSE 0 END) AS DB_Classic,
+    MAX(CASE WHEN CardType = 'Debit' AND CardSubType = 'Platinum' AND CardStatus = 'OK' THEN 1 ELSE 0 END) AS DB_Platinum,
+    SUM(CASE WHEN CardType = 'Credit' AND CardStatus = 'OK' THEN 1 ELSE 0 END) AS TotalCreditCard,
+    SUM(CASE WHEN CardType = 'Debit' AND CardStatus = 'OK' THEN 1 ELSE 0 END) AS TotalDebitCard
+INTO #card_product_holding
+FROM card_data
+GROUP BY CustomerId
+
+SELECT * FROM #card_product_holding
+
+SELECT CardSubType, COUNT(CardSubType) Credit
+FROM Card_data
+WHERE CardType = 'Credit' AND CardStatus = 'OK'
+GROUP BY CardSubType
+
+SELECT CardSubType, COUNT(CardSubType) Debit
+FROM Card_data
+WHERE CardType = 'Debit' AND CardStatus = 'OK'
+GROUP BY CardSubType
+
+
+-- 2
+drop table if exists casa_campaign
+
+create table casa_campaign (custid varchar(20), acctno varchar(20), yearmonth varchar(8),
+        [N01] float, [N02] float, [N03] float, [N04] float, [N05] float, [N06] float, [N07] float, [N08] float, [N09] float, [N10] float,
+        [N11] float, [N12] float, [N13] float, [N14] float, [N15] float, [N16] float, [N17] float, [N18] float, [N19] float, [N20] float,
+        [N21] float, [N22] float, [N23] float, [N24] float, [N25] float, [N26] float, [N27] float, [N28] float, [N29] float, [N30] float,
+        [N31] float)
+
+insert into casa_campaign
+values
+('1','136','202110',12,25,2,3,15,9,14,2,5,10,11,9,12,25,2,3,15,9,14,2,11,9,12,25,2,3,15,9,14,2,5),
+('1','295','202110',null,null,null,null,null,null,null,null,null,null,null,null,4,2,8,4,6,0,3,8,0,0,4,2,8,4,6,0,3,8,4),
+('2','159','202110',45,1,3,52,21,0,5,10,4,8,10,0,45,1,3,52,21,0,5,10,10,0,45,1,3,52,21,0,5,10,4),
+('3','170','202110',14,13,0,12,15,17,3,20,25,13,8,11,14,13,0,12,15,17,3,20,8,11,14,13,0,12,15,17,3,20,25),
+('4','248','202110',null,null,null,12,15,17,0,20,25,11,12,15,14,18,2,3,5,6,30,3,28,23,4,3,4,15,15,17,13,4,30)
+
+SELECT * FROM casa_campaign
+
+SELECT
+    custid,
+    SUM(N01 + N02 + N03 + N04 + N05 + N06 + N07 + N08 + N09 +
+        N10 + N11 + N12 + N13 + N14 + N15 + N16 + N17 + N18 +
+        N19 + N20 + N21 + N22 + N23 + N24 + N25 + N26 + N27 +
+        N28 + N29 + N30 + N31) AS 'tổng'
+FROM casa_campaign
+GROUP BY custid
