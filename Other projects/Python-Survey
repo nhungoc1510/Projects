@@ -1,0 +1,106 @@
+-- Import các thư viện
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import statistics
+import matplotlib.pyplot as plt
+
+-- Import dữ liệu
+link = 'https://drive.google.com/file/d/1QvjBtSR3tV13gLD1OWL0Y-WurAdSG13X/view?usp=sharing'
+path = 'https://drive.google.com/uc?export=download&id='+link.split('/')[-2]
+df = pd.read_csv(path)
+
+-- 1 - Tìm Mean, Median, Mode
+df.mean()
+
+df.median()
+
+responses =  [0, 0, 2, 5, 9, 9, 10, 10, 10, 11, 12, 12, 12, 8, 8, 8, 14, 15, 20, 25]
+
+from collections import Counter
+
+# Count frequency
+counter = Counter(responses)
+max_freq = max(counter.values())
+modes = [key for key, val in counter.items() if val == max_freq]
+
+modes
+
+-- 2 - Tìm Outlier theo phương pháp IQR
+
+# Create a box plot
+plt.figure(figsize=(8, 5))
+plt.boxplot(responses, vert=False, patch_artist=True, boxprops=dict(facecolor='lightblue'))
+
+# Add titles and labels
+plt.title("Box Plot of Survey Responses", fontsize=14)
+plt.xlabel("Number of Textbooks", fontsize=12)
+
+# Show plot
+plt.show()
+
+# Tính Q1, Q3, IQR
+q1 = np.percentile(responses, 25)
+q3 = np.percentile(responses, 75)
+iqr = q3 - q1
+
+# Tính lower, upper
+lower = q1 - 1.5 * iqr
+upper = q3 + 1.5 * iqr
+
+# Xác định outliers
+outliers = [x for x in responses if x < lower or x > upper]
+
+# Kết quả
+print("Q1:", q1)
+print("Q3:", q3)
+print("IQR:", iqr)
+print("Lower:", lower)
+print("Upper:", upper)
+print("Outliers:", outliers)
+
+-- 3 - Xác định Outlier 
+# Importing
+import sklearn
+from sklearn.datasets import load_diabetes
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the dataset
+diabetics = load_diabetes()
+
+# Create the dataframe
+column_name = diabetics.feature_names
+df_diabetics = pd.DataFrame(diabetics.data)
+df_diabetics.columns = column_name
+df_diabetics.head()
+
+df_diabetics.shape
+
+def visualize_boxplot(df):
+    plt.figure(figsize=(16, 8))
+    df.boxplot(patch_artist=True, boxprops=dict(facecolor='lightblue'))
+    plt.title("Boxplot of Diabetes Dataset Features", fontsize=16)
+    plt.xticks(rotation=45)
+    plt.ylabel("Values")
+    plt.show()
+
+visualize_boxplot(df_diabetics)
+
+# Detect outliers using IQR
+def detect_outliers_iqr(dataframe):
+    outliers = {}
+    for column in dataframe.columns:
+        q1 = dataframe[column].quantile(0.25)
+        q3 = dataframe[column].quantile(0.75)
+        iqr = q3 - q1
+        lower = q1 - 1.5 * iqr
+        upper = q3 + 1.5 * iqr
+        outliers[column] = dataframe[(dataframe[column] < lower) | (dataframe[column] > upper)][column]
+    return outliers
+
+outliers_iqr = detect_outliers_iqr(df_diabetics)
+print("\nOutliers Detected using IQR:")
+for col, outlier_values in outliers_iqr.items():
+    print(f"{col}: {outlier_values.index.tolist()}")
+
