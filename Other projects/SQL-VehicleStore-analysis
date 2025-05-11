@@ -1,0 +1,77 @@
+--1
+SELECT p.product_id, p.product_name, b.brand_name, c.category_name, p.model_year, p.list_price
+FROM production.products p
+FULL JOIN production.categories c ON p.category_id = c.category_id
+FULL JOIN production.brands b ON p.brand_id = b.brand_id
+
+--2
+SELECT * 
+FROM production.categories
+
+SELECT c.category_name, 
+    COUNT(p.product_id) AS So_luong_san_pham
+FROM production.products p
+INNER JOIN production.categories c ON p.category_id = c.category_id
+GROUP BY c.category_name
+
+--3
+SELECT *
+FROM (
+      SELECT c.category_name, p.product_id
+      FROM production.products p
+      INNER JOIN production.categories c ON p.category_id = c.category_id) SRC
+PIVOT (COUNT(product_id)
+FOR category_name IN (
+        [Children Bicycles], 
+        [Comfort Bicycles], 
+        [Cruisers Bicycles], 
+        [Cyclocross Bicycles], 
+        [Electric Bikes], 
+        [Mountain Bikes], 
+        [Road Bikes]))
+AS PVTTable
+
+--nếu không dùng Pivot
+SELECT 
+    SUM(CASE WHEN c.category_name = 'Children Bicycles' THEN 1 ELSE 0 END) AS [Children Bicycles],
+    SUM(CASE WHEN c.category_name = 'Comfort Bicycles' THEN 1 ELSE 0 END) AS [Comfort Bicycles],
+    SUM(CASE WHEN c.category_name = 'Cruisers Bicycles' THEN 1 ELSE 0 END) AS [Cruisers Bicycles],
+    SUM(CASE WHEN c.category_name = 'Cyclocross Bicycles' THEN 1 ELSE 0 END) AS [Cyclocross Bicycles],
+    SUM(CASE WHEN c.category_name = 'Electric Bikes' THEN 1 ELSE 0 END) AS [Electric Bikes],
+    SUM(CASE WHEN c.category_name = 'Mountain Bikes' THEN 1 ELSE 0 END) AS [Mountain Bikes],
+    SUM(CASE WHEN c.category_name = 'Road Bikes' THEN 1 ELSE 0 END) AS [Road Bikes]
+FROM production.products p
+INNER JOIN production.categories c ON p.category_id = c.category_id;
+
+--4
+SELECT p.model_year, c.category_name, p.product_id
+FROM production.products p
+INNER JOIN production.categories c ON p.category_id = c.category_id
+
+SELECT *
+FROM (
+      SELECT p.model_year, c.category_name, p.product_id
+      FROM production.products p
+      INNER JOIN production.categories c ON p.category_id = c.category_id
+)scr 
+PIVOT (
+      COUNT(product_id)
+      FOR category_name IN (
+            [Children Bicycles],
+            [Comfort Bicycles],
+            [Cruisers Bicycles],
+            [Cyclocross Bicycles],
+            [Electric Bikes],
+            [Mountain Bikes],
+            [Road Bikes]
+      )
+) AS PVTTable
+ORDER BY model_year
+
+--5
+--Dựa trên database và dữ liệu có sẵn, em thấy mình có thể rút trích các thông tin:
+/*    1. Thông tin khách hàng, chân dung khách hàng, khu vực của khách hàng, hành vi mua sắm của khách
+      2. Theo dõi doanh thu, lượt bán sản phẩm trên từng cửa hàng để theo dõi ngành hàng bán chạy
+      3. Theo dõi chương trình khuyến mãi từng cửa hàng xem có hiệu quả hay không
+      4. Số lượng hàng tồn kho của từng cửa hàng để chăm hàng kịp thời
+      5. Xem số lượng sản phẩm kho tổng để đặt hàng thêm kịp thời và điều chỉnh số lượng theo ngành hàng hợp lý */
